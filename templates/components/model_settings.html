@@ -1,0 +1,41 @@
+<dialog id="settings-dialog" class="dialog" aria-labelledby="settings-title">
+  <form id="model-form" class="dialog__body" novalidate>
+    <div class="dialog__head">
+      <h2 id="settings-title">Model settings</h2>
+      <button
+        type="button"
+        class="icon-btn"
+        data-close
+        aria-label="Close settings"
+      >
+        <i data-lucide="x"></i>
+      </button>
+    </div>
+    <label for="model-url" class="field-label"
+      >Teachable Machine model URL</label
+    >
+    <input
+      id="model-url"
+      name="url"
+      type="url"
+      inputmode="url"
+      autocomplete="off"
+      spellcheck="false"
+      placeholder="https://teachablemachine.withgoogle.com/models/…/"
+      value="{{ config.defaultModelUrl }}"
+      aria-describedby="model-url-help model-url-error"
+    />
+    <p id="model-url-help" class="hint">
+      Train a model at teachablemachine.withgoogle.com, choose
+      <strong>Export Model → Upload my model</strong>, and paste the shareable
+      link. A link ending in <code>model.json</code> also works.
+    </p>
+    <p id="model-url-error" class="form-error" role="alert" hidden></p>
+    <div class="dialog__actions">
+      <button type="button" class="btn btn--ghost" data-close>Cancel</button>
+      <button type="submit" class="btn btn--primary" id="load-model-btn">
+        <i data-lucide="plug-zap"></i>Load model
+      </button>
+    </div>
+  </form>
+</dialog>

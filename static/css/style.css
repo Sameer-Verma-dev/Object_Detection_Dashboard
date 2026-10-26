@@ -1,0 +1,250 @@
+:root {
+  --bg: #f4f5f3;
+  --surface: #fff;
+  --surface-2: #eef0ed;
+  --ink: #16201d;
+  --ink-2: #4a5752;
+  --line: #dde1dd;
+  --accent: #0f6b5c;
+  --accent-ink: #fff;
+  --accent-soft: #dff0ec;
+  --ok: #14724a;
+  --warn: #9a6700;
+  --bad: #b3261e;
+  --bad-soft: #fbe9e7;
+  --warn-soft: #fdf3d8;
+  --s1: 0.25rem;
+  --s2: 0.5rem;
+  --s3: 0.75rem;
+  --s4: 1rem;
+  --s5: 1.5rem;
+  --s6: 2rem;
+  --r-sm: 8px;
+  --r: 12px;
+  --r-lg: 16px;
+  --shadow: 0 1px 2px rgba(22, 32, 29, 0.06), 0 4px 14px rgba(22, 32, 29, 0.05);
+  --font: "Inter", "Segoe UI", system-ui, -apple-system, Roboto, sans-serif;
+}
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--ink);
+  font: 400 clamp(0.9rem, 0.86rem + 0.2vw, 1rem)/1.5 var(--font);
+  overflow-x: hidden;
+}
+
+h1,
+h2,
+p,
+ul,
+dl,
+figure {
+  margin: 0;
+}
+
+ul {
+  padding: 0;
+  list-style: none;
+}
+img,
+video,
+canvas {
+  max-width: 100%;
+  display: block;
+}
+
+[hidden] {
+  display: none !important;
+}
+
+code {
+  background: var(--surface-2);
+  padding: 0.1em 0.35em;
+  border-radius: 4px;
+  font-size: 0.9em;
+  word-break: break-all;
+}
+
+:focus-visible {
+  outline: 3px solid var(--accent);
+  outline-offset: 2px;
+}
+
+.hint {
+  color: var(--ink-2);
+  font-size: 0.85rem;
+}
+
+.hide-sm {
+  display: inline;
+}
+
+@media (max-width: 480px) {
+  .hide-sm {
+    display: none;
+  }
+}
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--s2);
+  min-height: 44px;
+  padding: 0 var(--s4);
+  border-radius: var(--r-sm);
+  border: 1px solid transparent;
+  font: 600 0.9rem var(--font);
+  cursor: pointer;
+  transition:
+    background 0.15s,
+    border-color 0.15s;
+}
+
+.btn svg {
+  width: 18px;
+  height: 18px;
+  flex: none;
+}
+.btn--primary {
+  background: var(--accent);
+  color: var(--accent-ink);
+}
+.btn--primary:hover:not(:disabled) {
+  background: #0b5448;
+}
+.btn--ghost {
+  background: var(--surface);
+  border-color: var(--line);
+  color: var(--ink);
+}
+.btn--ghost:hover:not(:disabled) {
+  background: var(--surface-2);
+}
+.btn--lg {
+  min-height: 52px;
+  font-size: 1rem;
+}
+.btn--sm {
+  min-height: 36px;
+  padding: 0 var(--s3);
+}
+.btn--block {
+  width: 100%;
+}
+.btn--icon {
+  padding: 0 var(--s3);
+}
+.btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+.icon-btn {
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  border: 0;
+  background: transparent;
+  border-radius: var(--r-sm);
+  cursor: pointer;
+  color: var(--ink);
+}
+.icon-btn:hover {
+  background: var(--surface-2);
+}
+.card {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--r-lg);
+  padding: clamp(var(--s4), 3vw, var(--s5));
+  box-shadow: var(--shadow);
+  min-width: 0;
+}
+.card__title {
+  font-size: 1.05rem;
+  font-weight: 650;
+  margin-bottom: var(--s4);
+}
+.card__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--s3);
+  margin-bottom: var(--s4);
+}
+.card__head .card__title {
+  margin: 0;
+}
+input[type="url"] {
+  width: 100%;
+  min-height: 46px;
+  padding: 0 var(--s3);
+  border: 1px solid var(--line);
+  border-radius: var(--r-sm);
+  font: inherit;
+  background: #fff;
+  color: var(--ink);
+}
+.field-label {
+  display: block;
+  font-weight: 600;
+  margin-bottom: var(--s2);
+}
+.form-error {
+  color: var(--bad);
+  font-size: 0.88rem;
+}
+.dialog {
+  border: 0;
+  border-radius: var(--r-lg);
+  padding: 0;
+  width: min(520px, calc(100vw - 2rem));
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.25);
+  color: var(--ink);
+}
+.dialog::backdrop {
+  background: rgba(22, 32, 29, 0.45);
+}
+.dialog__body {
+  padding: var(--s5);
+  display: grid;
+  gap: var(--s3);
+}
+.dialog__head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.dialog__head h2 {
+  font-size: 1.15rem;
+}
+.dialog__actions {
+  display: flex;
+  gap: var(--s3);
+  justify-content: flex-end;
+  flex-wrap: wrap;
+}
+@media (max-width: 480px) {
+  .dialog__actions .btn {
+    flex: 1;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation: none !important;
+    transition: none !important;
+  }
+}

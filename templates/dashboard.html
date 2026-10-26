@@ -1,0 +1,191 @@
+{% extends "base.html" %} {% block title %}VisionAI · Image classification{%
+endblock %} {% block body %}
+<header class="topbar">
+  <div class="topbar__inner">
+    <div class="brand">
+      <span class="brand__mark" aria-hidden="true"
+        ><i data-lucide="scan-eye"></i
+      ></span>
+      <div class="brand__text">
+        <strong>VisionAI</strong><span>AI-powered image classification.</span>
+      </div>
+    </div>
+    <div class="topbar__actions">
+      <span
+        class="status"
+        id="model-status"
+        data-state="disconnected"
+        role="status"
+        aria-live="polite"
+      >
+        <span class="status__dot" aria-hidden="true"></span
+        ><span id="model-status-text">Disconnected</span>
+      </span>
+      <button
+        class="btn btn--ghost btn--icon"
+        id="open-settings"
+        aria-label="Model settings"
+      >
+        <i data-lucide="settings"></i><span class="hide-sm">Settings</span>
+      </button>
+    </div>
+  </div>
+</header>
+
+<main class="layout" id="main">
+  <div class="banner" id="banner" role="alert" hidden></div>
+
+  <section class="card analyzer" aria-labelledby="analyzer-title">
+    <h2 id="analyzer-title" class="card__title">Image analyzer</h2>
+    <div class="tabs" role="group" aria-label="Image source">
+      <button class="tab is-active" id="tab-upload" aria-pressed="true">
+        <i data-lucide="upload"></i>Upload
+      </button>
+      <button class="tab" id="tab-camera" aria-pressed="false">
+        <i data-lucide="camera"></i>Camera
+      </button>
+    </div>
+
+    <div id="pane-upload">
+      <div
+        class="dropzone"
+        id="dropzone"
+        tabindex="0"
+        role="button"
+        aria-label="Choose an image to upload. Drag and drop is also supported."
+      >
+        <i data-lucide="image-plus" class="dropzone__icon"></i>
+        <p class="dropzone__title">Drop an image here, or tap to browse</p>
+        <p class="hint">
+          JPG, PNG or WEBP · up to {{ config.maxUploadMb|int }} MB
+        </p>
+      </div>
+      <input
+        type="file"
+        id="file-input"
+        accept="image/jpeg,image/png,image/webp"
+        hidden
+      />
+    </div>
+
+    <figure class="preview" id="preview" hidden>
+      <img id="preview-img" alt="Selected image preview" />
+      <div class="preview__actions">
+        <button class="btn btn--ghost" id="replace-btn">
+          <i data-lucide="refresh-cw"></i>Replace
+        </button>
+        <button class="btn btn--ghost" id="remove-btn">
+          <i data-lucide="trash-2"></i>Remove
+        </button>
+      </div>
+    </figure>
+
+    <div id="pane-camera" hidden>
+      <div class="camera">
+        <video id="camera-video" playsinline muted></video>
+        <p class="camera__empty hint" id="camera-empty">Camera is off.</p>
+      </div>
+      <div class="btn-row">
+        <button class="btn btn--primary" id="camera-open">
+          <i data-lucide="video"></i>Open camera
+        </button>
+        <button class="btn btn--primary" id="camera-capture" hidden>
+          <i data-lucide="aperture"></i>Capture
+        </button>
+        <button class="btn btn--ghost" id="camera-close" hidden>
+          <i data-lucide="video-off"></i>Close
+        </button>
+      </div>
+      <p class="hint" id="camera-note" hidden></p>
+    </div>
+
+    <button
+      class="btn btn--primary btn--lg btn--block"
+      id="analyze-btn"
+      disabled
+    >
+      <i data-lucide="sparkles"></i
+      ><span id="analyze-label">Analyze image</span>
+    </button>
+    <p class="hint" id="analyze-hint">
+      Load a model and choose an image to begin.
+    </p>
+  </section>
+
+  <section class="results" aria-labelledby="results-title" aria-live="polite">
+    <div class="card">
+      <h2 id="results-title" class="card__title">Top prediction</h2>
+      <div id="top-empty" class="empty">
+        <i data-lucide="target"></i>
+        <p id="top-empty-text">
+          Results appear here after you analyze an image.
+        </p>
+      </div>
+      <div id="top-result" hidden>
+        <p class="top__name" id="top-name"></p>
+        <div class="top__row">
+          <span class="top__pct" id="top-pct"></span
+          ><span class="badge" id="top-badge"></span>
+        </div>
+        <p class="hint" id="top-advice"></p>
+        <p class="hint">
+          Confidence shows how strongly the model favors a class. It is not the
+          model's accuracy.
+        </p>
+      </div>
+    </div>
+    <div class="card">
+      <h2 class="card__title">All classes</h2>
+      <ul class="bars" id="bars">
+        <li class="empty-line">No predictions yet.</li>
+      </ul>
+    </div>
+  </section>
+
+  <section class="card info" aria-labelledby="info-title">
+    <h2 id="info-title" class="card__title">Model information</h2>
+    <dl class="kv" id="model-info"></dl>
+  </section>
+
+  <section class="card recent" aria-labelledby="recent-title">
+    <div class="card__head">
+      <h2 id="recent-title" class="card__title">Recent analysis</h2>
+      <button class="btn btn--ghost btn--sm" id="clear-history" disabled>
+        <i data-lucide="eraser"></i>Clear
+      </button>
+    </div>
+    <ul class="history" id="history">
+      <li class="empty-line">Nothing analyzed in this session.</li>
+    </ul>
+    <p class="hint">
+      History lives in this tab only. Images are never uploaded.
+    </p>
+  </section>
+</main>
+{% include "components/model_settings.html" %} {% endblock %} {% block scripts
+%}
+<script>
+  window.VISIONAI_CONFIG = {{ config|tojson }};
+</script>
+<script
+  defer
+  src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@1.3.1/dist/tf.min.js"
+></script>
+<script
+  defer
+  src="https://cdn.jsdelivr.net/npm/@teachablemachine/image@0.8.5/dist/teachablemachine-image.min.js"
+></script>
+<script
+  defer
+  src="{{ url_for('static', filename='js/model-manager.js') }}"
+></script>
+<script
+  defer
+  src="{{ url_for('static', filename='js/image-upload.js') }}"
+></script>
+<script defer src="{{ url_for('static', filename='js/camera.js') }}"></script>
+<script
+  defer
+  src="{{ url_for('static', filename='js/dashboard.js') }}"
+></script>
+{% endblock %}
