@@ -222,9 +222,53 @@ document.addEventListener("DOMContentLoaded", () => {
     empty: $("camera-empty"),
     note: $("camera-note"),
   };
+  /* ---------- live classification ---------- */
+  let liveOn = false,
+    liveTimer = null;
+  const LIVE_INTERVAL_MS = 300;
+
+  function startLive() {
+    if (liveOn) return;
+    liveOn = true;
+    resetResults("Live view starting…");
+    liveLoop();
+  }
+
+  function stopLive() {
+    liveOn = false;
+    clearTimeout(liveTimer);
+  }
+
+  async function liveLoop() {
+    if (!liveOn) return;
+    const v = camEls.video;
+    if (
+      mm.state === "ready" &&
+      !busyAnalyze &&
+      v.readyState >= 2 &&
+      v.videoWidth
+    ) {
+      try {
+        const r = await mm.predict(v);
+        if (!liveOn) return;
+        renderResult(r, true);
+        renderInfo(r.inferenceTimeMs);
+      } catch (e) {
+        stopLive();
+        camera.close();
+        banner(e.message || "Live prediction failed.", "error");
+        return;
+      }
+    } else if (mm.state !== "ready") {
+      els.topEmptyText.textContent =
+        "Load a model in Settings to start live classification.";
+    }
+    liveTimer = setTimeout(liveLoop, LIVE_INTERVAL_MS);
+  }
   camera = new Camera({
     video: camEls.video,
     onState: (on) => {
+      on ? startLive() : liveOn && (stopLive(), resetResults());
       camEls.video.classList.toggle("on", on);
       camEls.empty.hidden = on;
       camEls.open.hidden = on;
@@ -281,7 +325,7 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 
   /* ---------- analysis ---------- */
-  function renderResult(r) {
+  function renderResult(r, live) {
     const t = r.topPrediction,
       lvl = mm.confidenceLevel(t.probability);
     els.topEmpty.hidden = true;
@@ -314,14 +358,21 @@ document.addEventListener("DOMContentLoaded", () => {
       return li;
     });
     els.bars.replaceChildren(...items);
-    requestAnimationFrame(() =>
+    if (live) {
+      els.bars.querySelectorAll(".bar__fill").forEach((f) => {
+        f.style.transition = "none";
+        f.style.width = f.dataset.w + "%";
+      });
+    } else {
       requestAnimationFrame(() =>
-        els.bars
-          .querySelectorAll(".bar__fill")
-          .forEach((f) => (f.style.width = f.dataset.w + "%")),
-      ),
-    );
-    lvl === "low" &&
+        requestAnimationFrame(() =>
+          els.bars
+            .querySelectorAll(".bar__fill")
+            .forEach((f) => (f.style.width = f.dataset.w + "%")),
+        ),
+      );
+    }
+    if (!live && lvl === "low")
       banner(
         "Low-confidence result — treat this prediction with caution.",
         "warn",
